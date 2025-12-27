@@ -1,0 +1,35 @@
+name: Run Auto CV Script (Today)
+
+on:
+  # GASから呼び出せるように手動トリガーのみ設定
+  workflow_dispatch:
+
+jobs:
+  run-cv-scraper:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.9'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Check file list
+        run: ls -R
+
+      - name: Run script
+        env:
+          USER_ID: ${{ secrets.USER_ID }}
+          USER_PASS: ${{ secrets.USER_PASS }}
+          GCP_JSON: ${{ secrets.GCP_JSON }}
+        run: python cv_main.py
