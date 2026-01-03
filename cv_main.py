@@ -16,17 +16,15 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from webdriver_manager.chrome import ChromeDriverManager
 
-# --- 環境変数 ---
+# --- 環境変数 (Secretsから取得) ---
 USER_ID = os.environ["USER_ID"]
 PASSWORD = os.environ["USER_PASS"]
 json_creds = json.loads(os.environ["GCP_JSON"])
+TARGET_URL = os.environ["TARGET_URL"]          # 追加: ログイン先URL
+SPREADSHEET_ID = os.environ["SPREADSHEET_ID"]  # 追加: シートID
+PARTNER_NAME = os.environ["PARTNER_NAME"]      # 追加: 検索する会社名
 
 # --- 設定 ---
-# 参考コードのURL (Action Log)
-TARGET_URL = "https://asp1.six-pack.xyz/admin/log/action/list"
-
-# 転記先スプレッドシート設定
-SPREADSHEET_ID = "1_nbkQfF-8vlQVkBBVf7cUD5k8ymTdMn-hN28VImm8j0"
 SHEET_NAME = "raw_cv_当日"
 
 def get_google_service(service_name, version):
@@ -50,7 +48,7 @@ def update_google_sheet(csv_path):
     except UnicodeDecodeError:
         print("UTF-8での読み込みに失敗しました。Shift_JIS(CP932)で再試行します。")
         try:
-            # 失敗したらShift_JIS(CP932)で試行 (日本のASPによくある形式)
+            # 失敗したらShift_JIS(CP932)で試行
             with open(csv_path, 'r', encoding='cp932') as f:
                 reader = csv.reader(f)
                 csv_data = list(reader)
@@ -174,10 +172,11 @@ def main():
             time.sleep(1)
             
             active_elem = driver.switch_to.active_element
-            active_elem.send_keys("株式会社フルアウト")
+            # Secretsから取得した会社名を入力
+            active_elem.send_keys(PARTNER_NAME)
             time.sleep(3) 
             active_elem.send_keys(Keys.ENTER)
-            print("パートナーを選択しました")
+            print(f"パートナー({PARTNER_NAME})を選択しました")
             time.sleep(2)
 
         except Exception as e:
