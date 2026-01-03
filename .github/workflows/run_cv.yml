@@ -1,7 +1,10 @@
 name: Run Auto CV Script (Today)
 
 on:
-  # GASから呼び出せるように手動トリガーのみ設定
+  # 24時間 10分おきに自動実行
+  schedule:
+    - cron: '*/10 * * * *'
+  # 手動実行も可能にする
   workflow_dispatch:
 
 jobs:
@@ -29,7 +32,12 @@ jobs:
 
       - name: Run script
         env:
+          # --- 既存の認証情報 ---
           USER_ID: ${{ secrets.USER_ID }}
           USER_PASS: ${{ secrets.USER_PASS }}
           GCP_JSON: ${{ secrets.GCP_JSON }}
+          # --- 今回追加した秘匿情報 ---
+          TARGET_URL: ${{ secrets.TARGET_URL }}
+          SPREADSHEET_ID: ${{ secrets.SPREADSHEET_ID }}
+          PARTNER_NAME: ${{ secrets.PARTNER_NAME }}
         run: python cv_main.py
