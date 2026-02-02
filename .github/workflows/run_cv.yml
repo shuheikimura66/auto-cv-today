@@ -7,6 +7,11 @@ on:
   # 手動実行も可能にする
   workflow_dispatch:
 
+# ▼ 追加: 同じワークフローが重複して実行されないようにする設定
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   run-cv-scraper:
     runs-on: ubuntu-latest
